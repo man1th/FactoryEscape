@@ -6,7 +6,8 @@ from minigrid.core.mission import MissionSpace
 from env.objects import Worker
 
 class FactoryEscapeEnv(MiniGridEnv):
-    def __init__(self, size=16, n_workers=3, max_steps=1000, spread_rate=10, render_mode=None):
+    # CHANGED: spread_rate from 10 to 4 (faster lava)
+    def __init__(self, size=16, n_workers=3, max_steps=1000, spread_rate=4, render_mode=None):
         self.n_workers = n_workers
         self.spread_rate = spread_rate
         self.saved_workers = 0
@@ -48,7 +49,8 @@ class FactoryEscapeEnv(MiniGridEnv):
         self.saved_workers = 0
         worker_positions = [(3, 3), (12, 4), (5, 12)]
         for pos in worker_positions:
-            worker = Worker(color="blue", health=200) 
+            # CHANGED: Health from 200 to 60 (high urgency)
+            worker = Worker(color="blue", health=60) 
             self.put_obj(worker, *pos)
             self.workers.append(worker)
 
@@ -96,7 +98,6 @@ class FactoryEscapeEnv(MiniGridEnv):
             if not worker.is_rescued:
                 worker.decay_health()
                 
-                # Safely convert numpy array to tuple for set checking
                 in_lava = False
                 if worker.cur_pos is not None:
                     pos_tuple = tuple(worker.cur_pos)
@@ -109,7 +110,6 @@ class FactoryEscapeEnv(MiniGridEnv):
                     
                     if worker.cur_pos is not None:
                         pos_tuple = tuple(worker.cur_pos)
-                        # Only overwrite with lava if they aren't currently being carried (-1, -1)
                         if pos_tuple != (-1, -1) and pos_tuple not in self.lava_positions:
                             self.grid.set(*worker.cur_pos, Lava()) 
                 else:
